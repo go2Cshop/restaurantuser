@@ -37,7 +37,7 @@ router.get("/search", (req, res) => {
           data.name.toLowerCase().includes(keyword) ||
           data.name_en.toLowerCase().includes(keyword) ||
           data.category.includes(keyword))
-        res.render("index", { restaurantsData: filterRestaurantsData, keywords, sort })     
+      res.render("index", { restaurantsData: filterRestaurantsData, keywords, sort })
     })
     .catch(err => console.log(err))
 })
@@ -47,44 +47,63 @@ router.get("/new", (req, res) => {
   res.render("new")
 })
 
+router.post("/", (req, res) => {
+  const userId = req.user._id
+  const { name, name_en, category, image, location, phone, google_map, rating, description } = req.body
+  return Restaurant.create({ name, name_en, category, image, location, phone, google_map, rating, description, userId })
+    .then(() => res.redirect("/"))
+    .catch(err => console.log(err))
+})
 
 // 瀏覽特定餐廳
-router.get("/:restaurantId", (req, res) => {
-  const { restaurantId } = req.params
-  Restaurant.findById(restaurantId)
+router.get("/:id", (req, res) => {
+  const userId = req.user._id
+  const _id = req.params.id
+  return Restaurant.findOne({ _id, userId })
     .lean()
     .then(restaurantData => res.render("show", { restaurantData }))
     .catch(err => console.log(err))
 })
 
-// 新增餐廳 順序重要！！！ 放後面讀不到
-router.post("/restaurants", (req, res) => {
-  Restaurant.create(req.body)
-    .then(() => res.redirect("/"))
-    .catch(err => console.log(err))
-})
 
 // 編輯餐廳頁面
-router.get("/:restaurantId/edit", (req, res) => {
-  const { restaurantId } = req.params
-  Restaurant.findById(restaurantId)
+router.get("/:id/edit", (req, res) => {
+  const userId = req.user._id
+  const _id = req.params.id
+  return Restaurant.findOne({ _id, userId })
     .lean()
     .then(restaurantData => res.render("edit", { restaurantData }))
     .catch(err => console.log(err))
 })
 
 // 更新餐廳
-router.put("/:restaurantId", (req, res) => {
-  const { restaurantId } = req.params
-  Restaurant.findByIdAndUpdate(restaurantId, req.body)
-    .then(() => res.redirect(`/restaurants/${restaurantId}`))
+router.put("/:id", (req, res) => {
+  const userId = req.user._id
+  const _id = req.params.id
+  const { name, name_en, category, image, location, phone, google_map, rating, description } = req.body
+  return Restaurant.findOne({ _id, userId })
+    .then(restaurantData => {
+      restaurantData.name = name
+      restaurantData.name_en = name_en
+      restaurantData.category = category
+      restaurantData.image = image
+      restaurantData.location = location
+      restaurantData.phone = phone
+      restaurantData.google_map = google_map
+      restaurantData.rating = rating
+      restaurantData.description = description
+      return restaurantData.save()
+    })
+    .then(() => res.redirect(`/restaurants/${_id}`))
     .catch(err => console.log(err))
 })
 
 // 刪除餐廳
-router.delete("/:restaurantId", (req, res) => {
-  const { restaurantId } = req.params
-  Restaurant.findByIdAndDelete(restaurantId)
+router.delete("/:id", (req, res) => {
+  const userId = req.user._id
+  const _id = req.params.id
+  return Restaurant.findOne({ _id, userId })
+    .then(restaurantData => restaurantData.remove())
     .then(() => res.redirect("/"))
     .catch(err => console.log(err))
 })
