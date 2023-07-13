@@ -4,10 +4,20 @@ const User = require('../../models/user')
 const passport = require('passport')
 
 router.get('/login', (req, res) => {
-  res.render('login')
+  const userInput = req.session.userInput || {}
+  // 清除 session 中的使用者輸入
+  delete req.session.userInput
+
+  res.render('login', { email: userInput.email, password: userInput.password })
 })
 
-router.post('/login', passport.authenticate('local', {
+router.post('/login', (req, res, next) => {
+  const email = req.body.email
+  const password = req.body.password
+
+  req.session.userInput = { email, password } // 存儲使用者輸入的值
+  next()
+}, passport.authenticate('local', {
   successRedirect: '/',
   failureRedirect: '/users/login'
 }))
@@ -19,12 +29,31 @@ router.get('/register', (req, res) => {
 router.post('/register', (req, res) => {
   // 取得註冊表單參數
   const { name, email, password, confirmPassword } = req.body
+
+  const errors = []
+  if (!name || !email || !password || !confirmPassword) {
+    errors.push({ message: '所有欄位都是必填。' })
+  }
+  if (password !== confirmPassword) {
+    errors.push({ message: '密碼與確認密碼不相符！' })
+  }
+  if (errors.length) {
+    return res.render('register', {
+      errors,
+      name,
+      email,
+      password,
+      confirmPassword
+    })
+  }
+
   // 檢查使用者是否已經註冊
   User.findOne({ email }).then(user => {
     // 如果已經註冊：退回原本畫面
     if (user) {
-      console.log('User already exists.')
+      errors.push({ message: '這個 Email 已經註冊過了。' })
       res.render('register', {
+        errors,
         name,
         email,
         password,
@@ -37,7 +66,8 @@ router.post('/register', (req, res) => {
         email,
         password
       })
-        .then(() => res.redirect('/'))
+        .then(() => req.flash('success_msg', '你已經成功註冊，請重新登入。'))
+        .then(() => res.redirect('/users/login'))
         .catch(err => console.log(err))
     }
   })
@@ -46,6 +76,7 @@ router.post('/register', (req, res) => {
 
 router.get('/logout', (req, res) => {
   req.logout()
+  req.flash('success_msg', '你已經成功登出。')
   res.redirect('/users/login')
 })
 

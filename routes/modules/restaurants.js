@@ -80,30 +80,17 @@ router.get("/:id/edit", (req, res) => {
 router.put("/:id", (req, res) => {
   const userId = req.user._id
   const _id = req.params.id
-  const { name, name_en, category, image, location, phone, google_map, rating, description } = req.body
-  return Restaurant.findOne({ _id, userId })
-    .then(restaurantData => {
-      restaurantData.name = name
-      restaurantData.name_en = name_en
-      restaurantData.category = category
-      restaurantData.image = image
-      restaurantData.location = location
-      restaurantData.phone = phone
-      restaurantData.google_map = google_map
-      restaurantData.rating = rating
-      restaurantData.description = description
-      return restaurantData.save()
-    })
+  Restaurant.findByIdAndUpdate({ _id, userId }, req.body)
     .then(() => res.redirect(`/restaurants/${_id}`))
     .catch(err => console.log(err))
 })
+
 
 // 刪除餐廳
 router.delete("/:id", (req, res) => {
   const userId = req.user._id
   const _id = req.params.id
-  return Restaurant.findOne({ _id, userId })
-    .then(restaurantData => restaurantData.remove())
+  Restaurant.findByIdAndDelete({ _id, userId })
     .then(() => res.redirect("/"))
     .catch(err => console.log(err))
 })
