@@ -69,8 +69,15 @@
 
 ## 開發工具
 
-- Node.js 10.15.0
-- Express 4.17.1
-- Express-Handlebars 5.3.3
+- node.js 14.16.0
+- bcryptjs 2.4.3
+- connect-flash 0.1.1
+- express 4.18.2
+- express-handlebars 5.3.5
+- express-session 1.17.1
+- method-override 3.0.0
+- mongoose 5.13.19
+- passport 0.4.1
+- passport-facebook 3.0.0
+- passport-local 1.0.0
 - Bootstrap 5.2.1
-- Font-awesome 5.8.1
