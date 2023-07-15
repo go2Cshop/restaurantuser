@@ -28,13 +28,14 @@
    npm install
    ```
 4. 建立 .env檔案 內容輸入連線字串
+   ```bash
    MONGODB_URI=
-   FACEBOOK_CALLBACK=http://localhost:3000/auth/facebook/callback 
+   FACEBOOK_CALLBACK=http://localhost:3000/auth/facebook/callback  
    FACEBOOK_ID=
    FACEBOOK_SECRET=  
    PORT=3000
    SESSION_SECRET=ThisIsMySecrets
-
+   ```
 5. 安裝完畢後繼續輸入：
    ```bash
    npm run start
