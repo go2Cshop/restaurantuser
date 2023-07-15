@@ -21,16 +21,17 @@ function sortDefinition(sort) {
   }
 }
 // 路徑因為index有設定 /restaurants了 router不用再加 /restaurants前綴詞
+
 // 搜尋特定餐廳
 router.get("/search", (req, res) => {
+  const userId = req.user._id
   const keywords = req.query.keywords
   const sort = req.query.sort
   const keyword = req.query.keywords.trim().toLowerCase()
 
-
-  Restaurant.find({})
+  Restaurant.find({ userId })
     .lean()
-    .sort(sortDefinition(sort)) //.sort({ _id: "asc" })
+    .sort(sortDefinition(sort)) //default: .sort({ _id: "asc" })
     .then(restaurantsData => {
       const filterRestaurantsData = restaurantsData.filter(
         data =>
